@@ -50,6 +50,10 @@ server $HOST_CTL iburst/g" $path_chrony
 		sed -i "s/pool 2.debian.pool.ntp.org offline iburst/\
 server $HOST_CTL iburst/g" $path_chrony
 
+	elif [ "$1" == "cinder01" ]; then
+		sed -i "s/pool 2.debian.pool.ntp.org offline iburst/\
+server $HOST_CTL iburst/g" $path_chrony
+
 	else
 		echocolor "Error installing NTP"
 		exit 1
@@ -136,6 +140,7 @@ if [ $# -ne 1 ]
         echo "Syntax command on Controller: bash $0 controller"
         echo "Syntax command on compute01: bash $0 compute01"
         echo "Syntax command on compute02: bash $0 compute02"
+        echo "Syntax command on Cinder01: bash $0 cinder01"
         exit 1;
 fi
 

@@ -119,8 +119,36 @@ iface $DATA_INTERFACE inet static
 
 EOF
 
+    elif [ "$1" == "cinder01" ]; then
+        cat << EOF > /etc/network/interfaces
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto $MGNT_INTERFACE
+iface $MGNT_INTERFACE inet static
+    address $CIN_MGNT_IP
+    netmask $NETMASK_ADD_MGNT
+
+
+# The primary network interface
+auto $EXT_INTERFACE
+iface $EXT_INTERFACE inet static
+    address $CIN_EXT_IP
+    netmask $NETMASK_ADD_EXT
+    gateway $GATEWAY_IP_EXT
+    dns-nameservers 8.8.8.8
+
+EOF
+
     else
-        echocolor "Cau hinh network that bai"
+        echocolor "Configure network failed"
         exit 1
     fi        
 }
@@ -140,8 +168,12 @@ function setup_hostname {
     elif [ "$1" == "compute02" ]; then
         echo "$HOST_COM2" > $path_hostname
         hostname -F $path_hostname
+
+    elif [ "$1" == "cinder01" ]; then
+        echo "$HOST_CIN1" > $path_hostname
+        hostname -F $path_hostname
     else
-        echocolor "Cau hinh hostname that bai"
+        echocolor "Configure hostname failed"
         exit 1
     fi
 }
@@ -170,8 +202,15 @@ function setup_hosts {
         echo "$COM2_MGNT_IP   $HOST_COM2" >> $path_hosts
         echo "$CIN_MGNT_IP    $HOST_CIN" >> $path_hosts
 
+    elif [ "$1" == "cinder01" ]; then
+        echo "127.0.0.1       localhost $HOST_CIN1" > $path_hosts
+        echo "$CTL_MGNT_IP    $HOST_CTL" >> $path_hosts
+        echo "$COM1_MGNT_IP   $HOST_COM1" >> $path_hosts
+        echo "$COM2_MGNT_IP   $HOST_COM2" >> $path_hosts
+        echo "$CIN_MGNT_IP    $HOST_CIN1" >> $path_hosts
+
     else
-        echocolor "setup hostname sai roi"
+        echocolor "setup hostname failed"
         exit 1
 
     fi
@@ -197,6 +236,7 @@ if [ $# -ne 1 ]
         echo "Syntax command on Controller: bash $0 controller"
         echo "Syntax command on compute01: bash $0 compute01"
         echo "Syntax command on compute02: bash $0 compute02"
+        echo "Syntax command on Cinder01: bash $0 cinder01"
         exit 1;
 fi
 
